@@ -1,4 +1,5 @@
-from keras.layers import Conv2D, MaxPooling2D, Conv2DTranspose
+from keras.layers import Conv2D, MaxPooling2D, Conv2DTranspose, BatchNormalization
+
 
 class DownSample():
 
@@ -16,27 +17,31 @@ class DownSample():
         self.pooling = pooling
         self.filters = filters
         self.pool = MaxPooling2D(pool_size=pool_size,
-                                 name=start+'-'+end+'_PDown')
+                                 name=start + '-' + end + '_PDown')
+        self.norm = BatchNormalization()
         self.conv = Conv2D(self.filters,
                            kernel_size,
                            activation=activation,
                            padding=padding,
-                           name=start+'-'+end+'_CDown')
+                           name=start + '-' + end + '_CDown',
+                           use_bias=False)
 
         super(DownSample, self).__init__(*kwargs)
 
     def __call__(self, x):
         if self.pooling:
             x = self.pool(x)
+        x = self.conv(x)
+        x = self.norm(x)
 
-        return self.conv(x)
+        return x
 
     # def compute_output_shape(self, input_shape):
         # shape = list(input_shape)
         # assert len(shape) == 4
         # if self.pooling:
-            # shape[1] /= 2
-            # shape[2] /= 2
+        # shape[1] /= 2
+        # shape[2] /= 2
         # shape[3] = self.filters
 
         # return tuple(shape)
@@ -46,9 +51,8 @@ class UpSample():
 
     def __init__(self,
                  filters,
+                 conv_param,
                  kernel_shape=(4, 4),
-                 filter_shape=(3, 3),
-                 activation='relu',
                  padding='same',
                  strides=(2, 2),
                  *kwargs):
@@ -57,23 +61,18 @@ class UpSample():
                                           kernel_shape,
                                           strides=strides,
                                           padding=padding)
+        self.norm = BatchNormalization()
         self.conv = Conv2D(filters,
-                           filter_shape,
-                           activation=activation,
-                           padding=padding)
-        # self.add = Add()
+                           **conv_param)
 
         super(UpSample, self).__init__(*kwargs)
 
     def __call__(self, x):
-        layer = x
-        # prev_layer = x[1]
+        x = self.conv_trans(x)
+        x = self.conv(x)
+        x = self.norm(x)
 
-        layer = self.conv_trans(layer)
-        # Fabric we sum and not catenate.
-        # a = self.add([layer, prev_layer])
-
-        return self.conv(layer)
+        return x
 
     # def compute_output_shape(self, input_shape):
         # input_shape = input_shape[0]
@@ -98,12 +97,16 @@ class SameRes():
         self.conv = Conv2D(filters,
                            kernel_size,
                            activation=activation,
-                           padding=padding)
-
+                           padding=padding,
+                           use_bias=False)
+        self.norm = BatchNormalization()
         super(SameRes, self).__init__(*kwargs)
 
     def __call__(self, x):
-        return self.conv(x)
+        x = self.conv(x)
+        x = self.norm(x)
+
+        return x
 
     # def compute_output_shape(self, input_shape):
         # shape = list(input_shape)
@@ -111,4 +114,3 @@ class SameRes():
         # shape[3] = self.filters
 
         # return tuple(shape)
-

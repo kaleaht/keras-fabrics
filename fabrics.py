@@ -49,6 +49,13 @@ class Fabric():
         self.padding = padding
         self.stride = stride
 
+        self.conv_param = dict(
+            activation='relu',
+            kernel_size=(3,3),
+            padding='same',
+            use_bias=False
+        )
+
         self.fabric = self.init_fabric(size)
         inputs = Input(input_shape, name='start')
         self.model = self.populate_fabric(inputs)
@@ -93,7 +100,7 @@ class Fabric():
             for scale in range(self.size[1]):
                 node = self.fabric[layer][scale]
                 if (scale < self.size[1]-1):    # After first row
-                    incoming_tensor = UpSample(cur_channels)(self.fabric[layer-1][scale+1]())
+                    incoming_tensor = UpSample(cur_channels, self.conv_param)(self.fabric[layer-1][scale+1]())
                     node.add(incoming_tensor)
                 if (scale > 0):    # Before last row
                     previous_node = self.fabric[layer-1][scale-1]
@@ -112,9 +119,9 @@ class Fabric():
             cur_channels = int(np.sqrt(cur_channels))
             node = self.fabric[layer][scale]
             if (scale < self.size[1]-1):    # After first row
-                incoming_tensor = UpSample(cur_channels)(self.fabric[layer-1][scale+1]())
+                incoming_tensor = UpSample(cur_channels, self.conv_param)(self.fabric[layer-1][scale+1]())
                 node.add(incoming_tensor)
-                incoming_tensor = UpSample(cur_channels)(self.fabric[layer][scale+1]())
+                incoming_tensor = UpSample(cur_channels, self.conv_param)(self.fabric[layer][scale+1]())
                 node.add(incoming_tensor)
             if (scale > 0):    # Before last row
                 previous_node = self.fabric[layer-1][scale-1]

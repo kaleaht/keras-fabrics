@@ -1,4 +1,4 @@
-from keras.layers import Conv2D, MaxPooling2D, Conv2DTranspose, BatchNormalization
+from keras.layers import Conv2D, MaxPooling2D, Conv2DTranspose
 
 
 class DownSample():
@@ -18,7 +18,6 @@ class DownSample():
         self.filters = filters
         self.pool = MaxPooling2D(pool_size=pool_size,
                                  name=start + '-' + end + '_PDown')
-        self.norm = BatchNormalization()
         self.conv = Conv2D(self.filters,
                            kernel_size,
                            activation=activation,
@@ -32,7 +31,6 @@ class DownSample():
         if self.pooling:
             x = self.pool(x)
         x = self.conv(x)
-        x = self.norm(x)
 
         return x
 
@@ -61,7 +59,6 @@ class UpSample():
                                           kernel_shape,
                                           strides=strides,
                                           padding=padding)
-        self.norm = BatchNormalization()
         self.conv = Conv2D(filters,
                            **conv_param)
 
@@ -70,7 +67,6 @@ class UpSample():
     def __call__(self, x):
         x = self.conv_trans(x)
         x = self.conv(x)
-        x = self.norm(x)
 
         return x
 
@@ -99,12 +95,10 @@ class SameRes():
                            activation=activation,
                            padding=padding,
                            use_bias=False)
-        self.norm = BatchNormalization()
         super(SameRes, self).__init__(*kwargs)
 
     def __call__(self, x):
         x = self.conv(x)
-        x = self.norm(x)
 
         return x
 

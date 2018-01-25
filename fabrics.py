@@ -1,4 +1,4 @@
-from keras.layers import Conv2D, MaxPooling2D, Conv2DTranspose, Add, Input
+from keras.layers import Conv2D, MaxPooling2D, Conv2DTranspose, Add, Input, BatchNormalization
 from keras.models import Model
 from keras.optimizers import Adam
 import numpy as np
@@ -22,6 +22,8 @@ class Node():
                 self.tensor = self.incoming_tensors[0]
             else:
                 self.tensor = Add(name=self.name)(self.incoming_tensors)
+
+            self.tensor = BatchNormalization()(self.tensor)
 
         return self.tensor
 

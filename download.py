@@ -2,6 +2,7 @@ import sys
 import os
 import urllib.request
 import tarfile
+import shutil
 
 import numpy as np
 import skimage
@@ -16,8 +17,8 @@ def download(dest):
         os.makedirs(download_dir)
 
     image_urls = [
-        # "http://vis-www.cs.umass.edu/lfw/part_labels/parts_lfw_funneled_gt_images.tgz",
-        # "http://vis-www.cs.umass.edu/lfw/lfw-funneled.tgz"
+        "http://vis-www.cs.umass.edu/lfw/part_labels/parts_lfw_funneled_gt_images.tgz",
+        "http://vis-www.cs.umass.edu/lfw/lfw-funneled.tgz"
     ]
 
     for url in image_urls:
@@ -29,17 +30,20 @@ def download(dest):
             if not os.path.exists(download_dir):
                 os.makedirs(download_dir)
 
+            print("Downloading from url: " + url)
             file_path, _ = urllib.request.urlretrieve(url=url,
                                                       filename=file_path)
-
-            print()
             print("Download finished. Extracting files.")
 
             tarfile.open(name=file_path, mode="r:gz").extractall(download_dir)
 
             print("Done.")
+
         else:
             print("Data has apparently already been downloaded and unpacked.")
+
+        print("Removing file: " + file_path)
+        os.remove(file_path)
 
     print("Downloading txt files")
 
@@ -58,8 +62,10 @@ def download(dest):
 
         if not os.path.exists(file_path):
 
+            print("Downloading from url: " + url)
             file_path, _ = urllib.request.urlretrieve(url=url,
                                                       filename=file_path)
+            print("Done.")
         else:
             print("txt file already downloaded")
 
@@ -67,6 +73,8 @@ def download(dest):
 
         images = []
         labels = []
+
+        print("Creating npy file from txt file: " + file_path)
         for i in txt_file:
 
             # Some file names are not complete.
@@ -92,11 +100,15 @@ def download(dest):
 
         save_loc = dest + file_path.split('/')[-1][:-4]
         np.save(save_loc, images)
-        print(save_loc)
+        print("Saved to: " + save_loc)
 
         save_loc_labels = dest + file_path.split('/')[-1][:-4] + '_labels'
         np.save(save_loc_labels, np.round(labels))
-        print(save_loc_labels)
+        print("Saved to: " + save_loc_labels)
+
+    print("Removing temp folder: " + download_dir)
+    shutil.rmtree(download_dir)
+    print("Done.")
 
 
 folder = 'data/'

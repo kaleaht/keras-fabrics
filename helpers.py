@@ -1,4 +1,5 @@
 from matplotlib import pyplot as plt
+import numpy as np
 
 def plot_model_history(model_history):
     fig, axs = plt.subplots(1,2,figsize=(15,5))

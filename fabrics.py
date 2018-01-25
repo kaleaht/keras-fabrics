@@ -34,6 +34,8 @@ class Fabric():
     def __init__(self,
                  input_shape,
                  size,
+                 channels,
+                 channels_double=False,
                  kernel_shape=(4, 4),
                  pool_size=(2, 2),
                  filter_shape=(3, 3),
@@ -42,6 +44,8 @@ class Fabric():
                  stride=(2, 2),
                  *kwargs):
         self.kernel_shape = kernel_shape
+        self.channels = channels
+        self.channels_double = channels_double
         self.size = size
         self.pool_size = pool_size
         self.filter_shape = filter_shape
@@ -78,8 +82,7 @@ class Fabric():
         layer = 0
         start = 'start'
         tensor = inputs
-        channels = 32
-        cur_channels = channels
+        cur_channels = self.channels
         for scale in range(self.size[1]):
             end = str(layer)+str(scale)
             tensor = DownSample(cur_channels,
@@ -90,13 +93,14 @@ class Fabric():
             node = self.fabric[layer][scale]
             node.add(tensor)
             tensor = node()     # Run add
-            cur_channels = cur_channels * 2
+            if self.channels_double:
+                cur_channels = cur_channels * 2
 
         layer += 1
 
         # Intermidiate layers
         for layers in range(layer, self.size[0]-1):
-            cur_channels = channels
+            cur_channels = self.channels
             for scale in range(self.size[1]):
                 node = self.fabric[layer][scale]
                 if (scale < self.size[1]-1):    # After first row
@@ -110,7 +114,8 @@ class Fabric():
 
                 incoming_tensor = SameRes(cur_channels)(self.fabric[layer-1][scale]())
                 node.add(incoming_tensor)
-            cur_channels = cur_channels * 2
+            if self.channels_double:
+                cur_channels = cur_channels * 2
 
             layer += 1
 

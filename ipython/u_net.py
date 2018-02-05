@@ -22,7 +22,7 @@ print('-' * 30)
 print('Loading and preprocessing training and validation data...')
 print('-' * 30)
 
-path = 'local_data/'
+path = '../local_data/'
 
 imgs_train = np.load(path + 'parts_train.npy')
 imgs_mask_train = np.load(path + 'parts_train_labels.npy')

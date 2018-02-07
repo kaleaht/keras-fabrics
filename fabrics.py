@@ -1,4 +1,4 @@
-from keras.layers import Conv2D, MaxPooling2D, Conv2DTranspose, Add, Input, Lambda
+from keras.layers import Conv2D, MaxPooling2D, Conv2DTranspose, Add, Input, Lambda, BatchNormalization
 from keras.models import Model
 from keras.optimizers import Adam
 import numpy as np
@@ -22,6 +22,7 @@ class Node():
                 self.tensor = self.incoming_tensors[0]
             else:
                 self.tensor = Add(name=self.name)(self.incoming_tensors)
+                self.tensor = BatchNormalization()(self.tensor)
 
         return self.tensor
 
@@ -140,7 +141,7 @@ class Fabric():
         conv = Lambda(lambda x: x[:, 3:-3, 3:-3])(conv)
 
         model = Model(inputs=[inputs], outputs=[conv])
-        model.compile(optimizer=Adam(lr=1e-5),
+        model.compile(optimizer=Adam(),
                       loss="categorical_crossentropy",
                       metrics=['accuracy'])
 

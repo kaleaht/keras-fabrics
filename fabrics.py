@@ -1,4 +1,4 @@
-from keras.layers import Conv2D, MaxPooling2D, Conv2DTranspose, Add, Input
+from keras.layers import Conv2D, MaxPooling2D, Conv2DTranspose, Add, Input, Lambda
 from keras.models import Model
 from keras.optimizers import Adam
 import numpy as np
@@ -137,6 +137,7 @@ class Fabric():
             node.add(incoming_tensor)
 
         conv = Conv2D(3, (1, 1), activation='softmax')(self.fabric[layer][0]())
+        conv = Lambda(lambda x: x[:, 3:-3, 3:-3])(conv)
 
         model = Model(inputs=[inputs], outputs=[conv])
         model.compile(optimizer=Adam(lr=1e-5),

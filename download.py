@@ -8,6 +8,7 @@ import numpy as np
 import skimage
 import skimage.io
 from skimage.transform import resize
+from skimage.util import pad
 
 
 def download(dest):
@@ -17,8 +18,8 @@ def download(dest):
         os.makedirs(download_dir)
 
     image_urls = [
-        "http://vis-www.cs.umass.edu/lfw/part_labels/parts_lfw_funneled_gt_images.tgz",
-        "http://vis-www.cs.umass.edu/lfw/lfw-funneled.tgz"
+        # "http://vis-www.cs.umass.edu/lfw/part_labels/parts_lfw_funneled_gt_images.tgz",
+        # "http://vis-www.cs.umass.edu/lfw/lfw-funneled.tgz"
     ]
 
     for url in image_urls:
@@ -88,11 +89,14 @@ def download(dest):
             label_file = i[0] + "_" + i[1] + ".ppm"
 
             img = skimage.io.imread(base_folder + folder + "/" + file)
-            img = resize(img, (256, 256))
+            # Original image size is 250px x 250px. We pad the image with 0,
+            # so we get 265x256 images. 
+            img = pad(img, ((3,3),(3,3),(0,0)), mode='constant')
+            # img = resize(img, (256, 256))
             images.append(img)
 
             label = skimage.io.imread(base_folder_labels + "/" + label_file)
-            label = resize(label, (256, 256))
+            # label = resize(label, (256, 256))
             labels.append(label)
 
         images = np.array(images)
@@ -107,7 +111,7 @@ def download(dest):
         print("Saved to: " + save_loc_labels)
 
     print("Removing temp folder: " + download_dir)
-    shutil.rmtree(download_dir)
+    # shutil.rmtree(download_dir)
     print("Done.")
 
 

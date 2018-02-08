@@ -4,9 +4,11 @@ import urllib.request
 import tarfile
 import shutil
 
+import matplotlib
+matplotlib.use('pdf')
 from matplotlib import pyplot as plt
 import numpy as np
-
+import keras
 
 def download_images(dest):
     download_dir = dest + 'temp/'
@@ -129,3 +131,29 @@ def plot_model_history(model_history):
     axs[1].set_xticks(np.arange(1,len(model_history.history['loss'])+1),len(model_history.history['loss'])/10)
     axs[1].legend(['train', 'val'], loc='best')
     plt.show()
+
+class PlotLosses(keras.callbacks.Callback):
+    def __init__(self, file_path):
+        self.validation_data = None
+        self.model = None
+        self.file_path = file_path
+
+    def on_train_begin(self, logs={}):
+        self.i = 0
+        self.x = []
+        self.losses = []
+        self.val_losses = []
+        self.fig = plt.figure()
+        self.logs = []
+
+    def on_epoch_end(self, epoch, logs={}):
+        self.logs.append(logs)
+        self.x.append(self.i)
+        self.losses.append(logs.get('loss'))
+        self.val_losses.append(logs.get('val_loss'))
+        self.i += 1
+        plt.plot(self.x, self.losses, label="loss")
+        plt.plot(self.x, self.val_losses, label="val_loss")
+        plt.legend()
+        plt.savefig(self.file_path);
+        plt.gcf().clear()

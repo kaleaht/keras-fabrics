@@ -22,7 +22,8 @@ class Node():
                 self.tensor = self.incoming_tensors[0]
             else:
                 self.tensor = Add(name=self.name)(self.incoming_tensors)
-                self.tensor = BatchNormalization()(self.tensor)
+
+            self.tensor = BatchNormalization()(self.tensor)
 
         return self.tensor
 
@@ -60,7 +61,6 @@ class Fabric():
             padding='same',
             use_bias=False
         )
-
         self.fabric = self.init_fabric(size)
         inputs = Input(input_shape, name='start')
         self.model = self.populate_fabric(inputs)
@@ -141,8 +141,5 @@ class Fabric():
         conv = Lambda(lambda x: x[:, 3:-3, 3:-3])(conv)
 
         model = Model(inputs=[inputs], outputs=[conv])
-        model.compile(optimizer=Adam(),
-                      loss="categorical_crossentropy",
-                      metrics=['accuracy'])
 
         return model

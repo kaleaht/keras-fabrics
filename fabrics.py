@@ -57,7 +57,7 @@ class Fabric():
 
         self.conv_param = dict(
             activation='relu',
-            kernel_size=(3,3),
+            kernel_size=(3, 3),
             padding='same',
             use_bias=False
         )
@@ -73,7 +73,7 @@ class Fabric():
         for layer in range(size[0]):
             fabric.append([])
             for scale in range(size[1]):
-                fabric[layer].append(Node(name=str(layer)+str(scale)))
+                fabric[layer].append(Node(name=str(layer) + str(scale)))
 
         return fabric
 
@@ -85,7 +85,7 @@ class Fabric():
         tensor = inputs
         cur_channels = self.channels
         for scale in range(self.size[1]):
-            end = str(layer)+str(scale)
+            end = str(layer) + str(scale)
             tensor = DownSample(cur_channels,
                                 start,
                                 end,
@@ -100,46 +100,53 @@ class Fabric():
         layer += 1
 
         # Intermidiate layers
-        for layers in range(layer, self.size[0]-1):
+        for layers in range(layer, self.size[0] - 1):
             cur_channels = self.channels
             for scale in range(self.size[1]):
                 node = self.fabric[layer][scale]
-                if (scale < self.size[1]-1):    # After first row
-                    incoming_tensor = UpSample(cur_channels, self.conv_param)(self.fabric[layer-1][scale+1]())
+                if (scale < self.size[1] - 1):    # After first row
+                    incoming_tensor = UpSample(cur_channels, self.conv_param, kernel_shape=self.kernel_shape)(
+                        self.fabric[layer - 1][scale + 1]())
                     node.add(incoming_tensor)
                 if (scale > 0):    # Before last row
-                    previous_node = self.fabric[layer-1][scale-1]
+                    previous_node=self.fabric[layer - 1][scale - 1]
 
-                    incoming_tensor = DownSample(cur_channels, previous_node.name, str(layer)+str(scale))(previous_node())
+                    incoming_tensor=DownSample(cur_channels, previous_node.name, str(
+                        layer) + str(scale))(previous_node())
                     node.add(incoming_tensor)
 
-                incoming_tensor = SameRes(cur_channels)(self.fabric[layer-1][scale]())
+                incoming_tensor=SameRes(cur_channels)(
+                    self.fabric[layer - 1][scale]())
                 node.add(incoming_tensor)
             if self.channels_double:
-                cur_channels = cur_channels * 2
+                cur_channels=cur_channels * 2
 
             layer += 1
 
         # Last layer
-        for scale in range(self.size[1]-1, -1, -1):
-            cur_channels = int(np.sqrt(cur_channels))
-            node = self.fabric[layer][scale]
-            if (scale < self.size[1]-1):    # After first row
-                incoming_tensor = UpSample(cur_channels, self.conv_param)(self.fabric[layer-1][scale+1]())
+        for scale in range(self.size[1] - 1, -1, -1):
+            cur_channels=int(np.sqrt(cur_channels))
+            node=self.fabric[layer][scale]
+            if (scale < self.size[1] - 1):    # After first row
+                incoming_tensor=UpSample(cur_channels, self.conv_param, kernel_shape = self.kernel_shape)(
+                    self.fabric[layer - 1][scale + 1]())
                 node.add(incoming_tensor)
-                incoming_tensor = UpSample(cur_channels, self.conv_param)(self.fabric[layer][scale+1]())
+                incoming_tensor=UpSample(cur_channels, self.conv_param, kernel_shape = self.kernel_shape)(
+                    self.fabric[layer][scale + 1]())
                 node.add(incoming_tensor)
             if (scale > 0):    # Before last row
-                previous_node = self.fabric[layer-1][scale-1]
-                incoming_tensor = DownSample(cur_channels, previous_node.name, str(layer)+str(scale))(previous_node())
+                previous_node=self.fabric[layer - 1][scale - 1]
+                incoming_tensor=DownSample(cur_channels, previous_node.name, str(
+                    layer) + str(scale))(previous_node())
                 node.add(incoming_tensor)
 
-            incoming_tensor = SameRes(cur_channels)(self.fabric[layer-1][scale]())
+            incoming_tensor=SameRes(cur_channels)(
+                self.fabric[layer - 1][scale]())
             node.add(incoming_tensor)
 
-        conv = Conv2D(3, (1, 1), activation='softmax')(self.fabric[layer][0]())
-        conv = Lambda(lambda x: x[:, 3:-3, 3:-3])(conv)
+        conv=Conv2D(3, (1, 1), activation = 'softmax')(self.fabric[layer][0]())
+        conv=Lambda(lambda x: x[:, 3:-3, 3:-3])(conv)
 
-        model = Model(inputs=[inputs], outputs=[conv])
+        model= Model(inputs=[inputs], outputs=[conv])
 
         return model

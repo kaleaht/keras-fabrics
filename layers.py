@@ -52,7 +52,7 @@ class UpSample():
     def __init__(self,
                  filters,
                  conv_param,
-                 kernel_shape=(4, 4),
+                 kernel_shape,
                  padding='same',
                  strides=(2, 2),
                  *kwargs):

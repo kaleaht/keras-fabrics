@@ -1,0 +1,18 @@
+models/
+old/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+__pycache__/
+
+### Vim ###
+# swap
+.sw[a-p]
+.*.sw[a-p]
+# session
+Session.vim
+# temporary
+.netrwhist
+*~
+# auto-generated tag files
+tags

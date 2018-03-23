@@ -40,7 +40,7 @@ class Fabric():
         return fabric
 
     def run_node(self, scale, layer):
-        num_layers, num_scales = self.size
+        num_layers, _ = self.size
         temp_tensors = []
 
         # Getting previous tensors.
@@ -51,10 +51,10 @@ class Fabric():
             # Last layer only up sample
             temp_tensors = self.last_layer(scale, layer)
         else:
-            # Intermidiate layers up sample, down sample and same res
+            # Intermediate layers up sample, down sample and same res
             temp_tensors = self.intermidiate_layer(scale, layer)
 
-        # Runnig tensor
+        # Running tensor
         self.tensors[layer][scale] = self.fabric[layer][scale](temp_tensors)
 
     def first_layer(self, scale, layer):
@@ -62,9 +62,9 @@ class Fabric():
             # Get input
             self.inputs = [Input(self.input_shape)]
             return self.inputs
-        else:
-            # Get previous scale in same layer
-            return [self.get_tensor(scale-1, layer)]
+
+        # Get previous scale in same layer
+        return [self.get_tensor(scale-1, layer)]
 
     def intermidiate_layer(self, scale, layer):
         res = []
@@ -104,7 +104,7 @@ class Fabric():
 
         layer = 1
 
-        # Intermidiate layers
+        # Intermediate layers
         for _ in range(layer, self.size[0] - 1):
             for scale in range(self.size[1]):
                 self.run_node(scale, layer)

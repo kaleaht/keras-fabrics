@@ -25,7 +25,7 @@ from keras.utils import plot_model
 from keras.callbacks import EarlyStopping, ModelCheckpoint
 from fabrics import Fabric
 from node import Node
-from helpers import model_history_to_png, PlotLosses
+from helpers import plot_model_eps, PlotLosses
 import matplotlib
 matplotlib.use('pdf')
 import matplotlib.pyplot as plt
@@ -94,7 +94,7 @@ callbacks = [
                     monitor='val_loss',
                     save_best_only=True,
                     verbose=0),
-    PlotLosses('loss.png'),
+    PlotLosses('loss.eps'),
 ]
 
 history = fabric.model.fit(imgs_train,
@@ -112,8 +112,8 @@ print("Saving train results to csv...")
 pd.DataFrame(history.history).to_csv("train.csv", sep=",")
 print('-' * 30)
 
-print("Saving train results to png...")
-model_history_to_png(history, 'acc_loss.png')
+print("Saving train results to eps...")
+plot_model_eps(history, 'acc_loss.eps')
 print('-' * 30)
 
 
@@ -141,5 +141,5 @@ fig.add_subplot(2, 4, 3)
 plt.imshow(abs_preds[1])
 fig.add_subplot(2, 4, 4)
 plt.imshow(preds[1])
-plt.savefig('predictions.eps', format='eps')
+plt.savefig('predictions.png')
 print('-' * 30)

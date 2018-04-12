@@ -62,6 +62,30 @@ def plot_model_eps(model, file_path):
 
     plt.savefig(file_path, format='eps')
 
+def plot_predictions(preds, imgs_validation_org, imgs_mask_validation_org, file_path):
+    abs_preds = (preds == preds.max(axis=3)[:, :, :, None]).astype(float)
+    org_img = imgs_validation_org[:2]
+    org_mask = imgs_mask_validation_org[:2]
+
+    fig = plt.figure(figsize=(16, 12))
+    fig.add_subplot(1, 4, 1)
+    plt.imshow(org_img[0])
+    fig.add_subplot(1, 4, 2)
+    plt.imshow(org_mask[0])
+    fig.add_subplot(1, 4, 3)
+    plt.imshow(abs_preds[0])
+    fig.add_subplot(1, 4, 4)
+    plt.imshow(preds[0])
+
+    fig.add_subplot(2, 4, 1)
+    plt.imshow(org_img[1])
+    fig.add_subplot(2, 4, 2)
+    plt.imshow(org_mask[1])
+    fig.add_subplot(2, 4, 3)
+    plt.imshow(abs_preds[1])
+    fig.add_subplot(2, 4, 4)
+    plt.imshow(preds[1])
+    plt.savefig('predictions.png')
 
 class PlotLosses(keras.callbacks.Callback):
     def __init__(self, file_path):

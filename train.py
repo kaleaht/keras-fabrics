@@ -25,7 +25,7 @@ from keras.utils import plot_model
 from keras.callbacks import EarlyStopping, ModelCheckpoint
 from fabrics import Fabric
 from node import Node
-from helpers import plot_model_eps, PlotLosses
+from helpers import plot_model_eps, PlotLosses, plot_predictions
 import matplotlib
 matplotlib.use('pdf')
 import matplotlib.pyplot as plt
@@ -119,27 +119,8 @@ print('-' * 30)
 
 print('Saving example predictions...')
 preds = fabric.model.predict(imgs_validation[:2], verbose=1).astype('float32')
-abs_preds = (preds == preds.max(axis=3)[:, :, :, None]).astype(float)
-org_img = imgs_validation_org[:2]
-org_mask = imgs_mask_validation_org[:2]
-
-fig = plt.figure(figsize=(16, 12))
-fig.add_subplot(1, 4, 1)
-plt.imshow(org_img[0])
-fig.add_subplot(1, 4, 2)
-plt.imshow(org_mask[0])
-fig.add_subplot(1, 4, 3)
-plt.imshow(abs_preds[0])
-fig.add_subplot(1, 4, 4)
-plt.imshow(preds[0])
-
-fig.add_subplot(2, 4, 1)
-plt.imshow(org_img[1])
-fig.add_subplot(2, 4, 2)
-plt.imshow(org_mask[1])
-fig.add_subplot(2, 4, 3)
-plt.imshow(abs_preds[1])
-fig.add_subplot(2, 4, 4)
-plt.imshow(preds[1])
-plt.savefig('predictions.png')
+plot_predictions(preds, 
+                 imgs_validation_org,
+                 imgs_mask_validation_org,
+                 'predictions.png')
 print('-' * 30)

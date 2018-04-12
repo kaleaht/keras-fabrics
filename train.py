@@ -32,7 +32,8 @@ import matplotlib.pyplot as plt
 
 print('Creating folder for train instance')
 
-model_dir = os.getcwd() + '/models/' + model_name + '/'
+start_dir = os.getcwd()
+model_dir = start_dir + '/models/' + model_name + '/'
 
 if not os.path.exists(model_dir):
     os.makedirs(model_dir)
@@ -124,3 +125,4 @@ plot_predictions(preds,
                  imgs_mask_validation_org,
                  'predictions.png')
 print('-' * 30)
+os.chdir(start_dir)

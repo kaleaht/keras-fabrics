@@ -11,6 +11,8 @@ parser.add_argument('layers', metavar='number of layers', type=int,
                     help='number of fabric layers')
 parser.add_argument('filters', metavar='number of filters', type=int,
                     help='number of fabric filters')
+parser.add_argument('tr_conv_kernel', metavar='convolutional kernel size',
+                    type=int, help='convolutional square kernel size k')
 parser.add_argument('-e', '--epochs', metavar='number of epochs', type=int,
                     help='number of epochs', default=10)
 
@@ -18,6 +20,7 @@ args = parser.parse_args()
 model_name = args.model_name
 num_layers = args.layers
 num_filters = args.filters
+tr_conv_kernel = args.tr_conv_kernel
 num_epochs = args.epochs
 
 from keras.optimizers import Adam
@@ -78,7 +81,8 @@ print('-' * 30)
 
 print("Creating model")
 os.chdir(model_dir)
-fabric = Fabric(Node, (256, 256, 3), (num_layers, 9), num_filters)
+fabric = Fabric(Node, (256, 256, 3), (num_layers, 9), num_filters,
+                tr_conv_kernel)
 fabric.model.compile(optimizer=Adam(lr=0.01),
                      loss="categorical_crossentropy",
                      metrics=['accuracy'])
@@ -90,7 +94,7 @@ print("-" * 30)
 
 print('Fitting model...')
 callbacks = [
-    # EarlyStopping(monitor='val_loss', patience=10, verbose=0),
+    EarlyStopping(monitor='val_loss', patience=10, verbose=0),
     ModelCheckpoint('model.h5',
                     monitor='val_loss',
                     save_best_only=True,

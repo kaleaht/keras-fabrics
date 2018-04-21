@@ -11,8 +11,10 @@ class Fabric():
                  input_shape,
                  size,
                  cur_channels,
+                 tr_conv_kernel,
                  *kwargs):
         self.cur_channels = cur_channels
+        self.tr_conv_kernel = tr_conv_kernel
         self.size = size
         self.input_shape = input_shape
         self.inputs = None
@@ -35,6 +37,7 @@ class Fabric():
                 fabric[layer].append(node((layer, scale),
                                           self.cur_channels,
                                           self.input_shape[0],
+                                          self.tr_conv_kernel,
                                           self))
 
         return fabric

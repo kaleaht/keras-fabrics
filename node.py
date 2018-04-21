@@ -12,12 +12,14 @@ class Node(Layer):
                  index,
                  cur_channels,
                  start_size,
+                 tr_conv_kernel,
                  fabric,
                  **kwargs):
         self.index = index
 
         self.cur_channels = cur_channels
         self.start_size = start_size
+        self.tr_conv_kernel = tr_conv_kernel
         self.fabric_size = fabric.size
 
         self.conv_param = dict(
@@ -49,8 +51,8 @@ class Node(Layer):
 
             if shape[1] < self.output_dim:
                 tensor = Conv2DTranspose(self.cur_channels,
-                                         5,
-                                         strides=(2, 2),
+                                         self.tr_conv_kernel,
+                                         strides=2,
                                          padding='same')(in_tensor)
 
                 tensors.append(tensor)

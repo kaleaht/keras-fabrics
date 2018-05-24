@@ -27,7 +27,7 @@ from keras.optimizers import Adam
 from keras.utils import plot_model
 from keras.callbacks import EarlyStopping, ModelCheckpoint
 from fabrics import Fabric
-from node import Node
+from node import Node, NodeResize, NodeResizeConv, NodeBi
 from helpers import plot_model_eps, PlotLosses, plot_predictions
 import matplotlib
 matplotlib.use('pdf')
@@ -81,7 +81,7 @@ print('-' * 30)
 
 print("Creating model")
 os.chdir(model_dir)
-fabric = Fabric(Node, (256, 256, 3), (num_layers, 9), num_filters,
+fabric = Fabric(NodeBi, (256, 256, 3), (num_layers, 9), num_filters,
                 tr_conv_kernel)
 fabric.model.compile(optimizer=Adam(lr=0.01),
                      loss="categorical_crossentropy",
